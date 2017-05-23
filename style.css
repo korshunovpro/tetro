@@ -1,0 +1,66 @@
+body {
+    width: 800px;
+    margin:0 auto;
+}
+
+td {
+    width:15px;
+    height:15px;
+    border:1px solid #000;
+    position: relative;
+    text-align: center;
+    font-size:11px;
+    line-height:15px;
+    vertical-align: top;
+}
+
+td.block {
+    top:0;
+    left:0;
+    background: #000;
+    color: #fff;
+}
+
+.block:before {
+    position: absolute;
+    display: block;
+    width:16px;
+    height:16px;
+    text-align: center;
+    content: "1";
+    color: #fff;
+    opacity: 0.5;
+}
+
+.canvas {
+    position: relative;
+    background: #a2ec95;
+}
+
+.canvas:before {
+    width:15px;
+    position: absolute;
+    display: block;
+    text-align: center;
+    content: "0";
+    opacity: 0.5;
+    color: #000;
+}
+
+#bucket, #settings {
+    float: left;
+    margin-right:20px;
+}
+
+label {
+    display: block;
+}
+
+div.div {
+    width:250px;
+    float: left;
+}
+
+div.clear {
+    clear: both;
+}

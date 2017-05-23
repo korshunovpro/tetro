@@ -1,0 +1,58 @@
+/*
+ --------------- CONTROLS ----------------------------------
+ */
+if (typeof window.CONTROL !== 'undefined') var CONTROL = {};
+
+CONTROL = (function() {
+
+    var _self = this;
+
+    document.onkeydown = controlDown;
+    document.onkeyup = controlUp;
+
+    function controlUp(e) {
+        e = e || window.event;
+
+        if (e.keyCode === 40) {// down arrow
+            e.preventDefault();
+        }
+    }
+
+    function controlDown(e) {
+        e = e || window.event;
+
+        // Z
+        if (e.keyCode === 90) {
+            e.preventDefault();
+            TETRO.move(TETRO.ROTATE);
+        }
+        // X
+        else if (e.keyCode === 88) {
+            e.preventDefault();
+            TETRO.move(TETRO.ROTATECCW);
+        }
+        // up
+        else if (e.keyCode === 38) {
+            e.preventDefault();
+            TETRO.move(TETRO.UP);
+        }
+        // down
+        else if (e.keyCode === 40) {
+            e.preventDefault();
+            TETRO.move(TETRO.DOWN);
+        }
+        // left
+        else if (e.keyCode === 37) {
+            e.preventDefault();
+            TETRO.move(TETRO.LEFT);
+        }
+        // right
+        else if (e.keyCode === 39) {
+            e.preventDefault();
+            TETRO.move(TETRO.RIGHT);
+        }
+    }
+
+    return _self;
+
+})();
