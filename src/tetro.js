@@ -305,9 +305,9 @@ TETRO = (function() {
      * @param direction
      */
     _self.move = function(direction) {
-        console.log(Stack.grid);
         var x = Game.col;
         var y = Game.row;
+        var Figure = Game.CurrentPiece.piece.figure;
 
         switch (direction) {
             case 'left': x--;
@@ -320,20 +320,21 @@ TETRO = (function() {
                 break;
             case 'rotate':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, false);
+                    Figure = rotatePiece(Game.CurrentPiece.piece.figure, false);
                 }
                 break;
             case 'rotateccw':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, true);
+                    Figure = rotatePiece(Game.CurrentPiece.piece.figure, true);
                 }
                 break;
             default : return;
         }
 
-        if (collision(y, x, Game.CurrentPiece.piece.figure)) {
+        if (collision(y, x, Figure)) {
             Game.row = y;
             Game.col = x;
+            Game.CurrentPiece.piece.figure = Figure;
             clearPiece(Game.CurrentPiece.cells);
             Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
         }
