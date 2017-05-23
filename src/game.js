@@ -3,6 +3,9 @@
  */
 if (typeof window.GAME !== 'undefined') var GAME = {};
 
+/**
+ * reference: http://codeincomplete.com/posts/javascript-game-foundations-the-game-loop/
+ */
 GAME = (function () {
     var now,
         dt   = 0,
@@ -18,6 +21,7 @@ GAME = (function () {
         dt = dt + Math.min(1, (now - last) / 1000);
         while(dt > step) {
             dt = dt - step;
+            // loop
             TETRO.draw();
         }
         last = now;

@@ -5,17 +5,11 @@ if (typeof window.CONTROL !== 'undefined') var CONTROL = {};
 
 CONTROL = (function() {
 
-    var _self = this;
-
     document.onkeydown = controlDown;
     document.onkeyup = controlUp;
 
     function controlUp(e) {
         e = e || window.event;
-
-        if (e.keyCode === 40) {// down arrow
-            e.preventDefault();
-        }
     }
 
     function controlDown(e) {
@@ -52,7 +46,5 @@ CONTROL = (function() {
             TETRO.move(TETRO.RIGHT);
         }
     }
-
-    return _self;
 
 })();

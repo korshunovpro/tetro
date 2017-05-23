@@ -237,21 +237,6 @@ TETRO = (function() {
      */
 
     /**
-     * @param obj
-     * @returns {*}
-     */
-    function getRandomPiece(obj) {
-        var rand = getRandomInt(1, Object.keys(obj).length);
-        var count = 0;
-        for (var prop in obj) {
-            count++;
-            if (count === rand) {
-                return obj[prop];
-            }
-        }
-    }
-
-    /**
      * @param count
      * @param length
      * @returns {number}
@@ -269,6 +254,20 @@ TETRO = (function() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    /**
+     * @param obj
+     * @returns {*}
+     */
+    function getRandomPiece(obj) {
+        var rand = getRandomInt(1, Object.keys(obj).length);
+        var count = 0;
+        for (var prop in obj) {
+            count++;
+            if (count === rand) {
+                return obj[prop];
+            }
+        }
+    }
 
     /*
      ------------------------ CONTROLS -------------------------------
@@ -319,7 +318,7 @@ TETRO = (function() {
     _self.init = function() {
         initBucket();
 
-        // demo pieces
+        // demo floor pieces
         Game.pieceCounter++;
         fillPiece(getRandomPiece(Pieces).figure, 18, 1);
 
