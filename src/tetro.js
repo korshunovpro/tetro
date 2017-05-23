@@ -97,46 +97,6 @@ TETRO = (function() {
     };
 
     /**
-     * move constants
-     */
-    Object.defineProperty(_self, 'UP', {
-        value: 'up',
-        writable: false,
-        configurable: false
-    });
-
-    Object.defineProperty(_self, 'DOWN', {
-        value: 'down',
-        writable: false,
-        configurable: false
-    });
-
-    Object.defineProperty(_self, 'LEFT', {
-        value: 'left',
-        writable: false,
-        configurable: false
-    });
-
-    Object.defineProperty(_self, 'RIGHT', {
-        value: 'right',
-        writable: false,
-        configurable: false
-    });
-
-    Object.defineProperty(_self, 'ROTATE', {
-        value: 'rotate',
-        writable: false,
-        configurable: false
-    });
-
-    Object.defineProperty(_self, 'ROTATECCW', {
-        value: 'rotateccw',
-        writable: false,
-        configurable: false
-    });
-    
-
-    /**
      * Init empty play area
      * @returns {boolean}
      */
@@ -303,9 +263,49 @@ TETRO = (function() {
      */
 
     /**
+     * move constants
+     */
+    Object.defineProperty(_self, 'UP', {
+        value: 'up',
+        writable: false,
+        configurable: false
+    });
+
+    Object.defineProperty(_self, 'DOWN', {
+        value: 'down',
+        writable: false,
+        configurable: false
+    });
+
+    Object.defineProperty(_self, 'LEFT', {
+        value: 'left',
+        writable: false,
+        configurable: false
+    });
+
+    Object.defineProperty(_self, 'RIGHT', {
+        value: 'right',
+        writable: false,
+        configurable: false
+    });
+
+    Object.defineProperty(_self, 'ROTATE', {
+        value: 'rotate',
+        writable: false,
+        configurable: false
+    });
+
+    Object.defineProperty(_self, 'ROTATECCW', {
+        value: 'rotateccw',
+        writable: false,
+        configurable: false
+    });
+
+    /**
      * @param direction
      */
     _self.move = function(direction) {
+        console.log(Stack.grid);
         var x = Game.col;
         var y = Game.row;
         var piece = Game.CurrentPiece.piece.figure;
