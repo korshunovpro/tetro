@@ -1,5 +1,5 @@
 /*
- --------------- TETR ----------------------------------
+ --------------- TETRO ----------------------------------
  */
 if (typeof window.TETRO !== 'undefined') var TETRO = {};
 
@@ -138,12 +138,12 @@ TETRO = (function() {
     }
 
     /**
-     * @param piece
+     * @param cells
      */
-    function clearPiece(piece) {
-        for (var r in piece.cells) {
-            for (var c in piece.cells[r]) {
-                if (piece.cells[r][c] === 1) {
+    function clearPiece(cells) {
+        for (var r in cells) {
+            for (var c in cells[r]) {
+                if (cells[r][c] === 1) {
                     Stack.grid[r][c] = 0;
                 }
             }
@@ -188,7 +188,7 @@ TETRO = (function() {
      */
     function rotate (ccw) {
         Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, ccw);
-        clearPiece(Game.CurrentPiece);
+        clearPiece(Game.CurrentPiece.cells);
         Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
     }
 
@@ -308,7 +308,6 @@ TETRO = (function() {
         console.log(Stack.grid);
         var x = Game.col;
         var y = Game.row;
-        var piece = Game.CurrentPiece.piece.figure;
 
         switch (direction) {
             case 'left': x--;
@@ -321,23 +320,22 @@ TETRO = (function() {
                 break;
             case 'rotate':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    piece = rotatePiece(piece, false);
+                    Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, false);
                 }
                 break;
             case 'rotateccw':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    piece = rotatePiece(piece, true);
+                    Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, true);
                 }
                 break;
             default : return;
         }
 
-        if (collision(y, x, piece)) {
+        if (collision(y, x, Game.CurrentPiece.piece.figure)) {
             Game.row = y;
             Game.col = x;
-            clearPiece(Game.CurrentPiece);
-            Game.CurrentPiece.piece.figure = piece;
-            Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col, Game.CurrentPiece.id);
+            clearPiece(Game.CurrentPiece.cells);
+            Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
         }
     };
 
@@ -362,7 +360,7 @@ TETRO = (function() {
 
         Game.pieceCounter++;
         Game.CurrentPiece.id = Game.pieceCounter;
-        Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col, Game.CurrentPiece.id);
+        Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
 
     };
 
