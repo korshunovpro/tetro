@@ -3,7 +3,7 @@
  */
 if (typeof window.TETRO !== 'undefined') var TETRO = {};
 
-TETRO = (function() {
+TETRO = (function () {
 
     var _self = this;
 
@@ -15,15 +15,23 @@ TETRO = (function() {
         width: 10,
         height: 20
     };
-    
+
     /**
      * @type {{}}
      */
     var Game = {
-        row:0,
-        col:0,
-        pieceCounter:0,
-        CurrentPiece: {}
+        row: 0,
+        col: 0,
+        pieceCounter: 0,
+        CurrentPiece: {
+            id: 0,
+            piece: {
+                name: null,
+                figure: null,
+                color: null
+            },
+            cells: {}
+        }
     };
 
     /**
@@ -122,7 +130,7 @@ TETRO = (function() {
         for (var r = 0; r < piece.length; r++) {
             // blocks
             for (var c = 0; c < piece[r].length; c++) {
-                if (row + r >= 0 ) {
+                if (row + r >= 0) {
                     if (piece[r][c] === 1) {
                         Stack.grid[row + r][col + c] = 1;
                         if (typeof cells[row + r] === 'undefined') cells[row + r] = {};
@@ -162,7 +170,7 @@ TETRO = (function() {
 
         if (ccw === true) {
             for (var c = col - 1, cc = 0; c >= 0; c--, cc++) {
-                for (var r = 0; r < row ; r++) {
+                for (var r = 0; r < row; r++) {
                     if ((!rotate[cc])) {
                         rotate[cc] = [];
                     }
@@ -186,7 +194,7 @@ TETRO = (function() {
     /**
      * @param ccw
      */
-    function rotate (ccw) {
+    function rotate(ccw) {
         Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, ccw);
         clearPiece(Game.CurrentPiece.cells);
         Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
@@ -199,10 +207,10 @@ TETRO = (function() {
      * @returns {boolean}
      */
     function collision(y, x, piece) {
-        for (var r = 0; r < piece.length; r++ ) {
-            for ( var c = 0; c < piece[r].length; c++) {
+        for (var r = 0; r < piece.length; r++) {
+            for (var c = 0; c < piece[r].length; c++) {
                 // first IF block not needed if erase piece before check
-                if ( (typeof Game.CurrentPiece.cells[y + r] === 'undefined'
+                if ((typeof Game.CurrentPiece.cells[y + r] === 'undefined'
                         || typeof Game.CurrentPiece.cells[y + r][x + c] === 'undefined'
                         || Game.CurrentPiece.cells[y + r][x + c] === 0
                     )
@@ -304,46 +312,51 @@ TETRO = (function() {
     /**
      * @param direction
      */
-    _self.move = function(direction) {
+    _self.move = function (direction) {
         var x = Game.col;
         var y = Game.row;
-        var Figure = Game.CurrentPiece.piece.figure;
+        var RotateFigure = Game.CurrentPiece.piece.figure;
 
         switch (direction) {
-            case 'left': x--;
+            case 'left':
+                x--;
                 break;
-            case 'right': x++;
+            case 'right':
+                x++;
                 break;
-            case 'up': y--;
+            case 'up':
+                y--;
                 break;
-            case 'down': y++;
+            case 'down':
+                y++;
                 break;
             case 'rotate':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    Figure = rotatePiece(Game.CurrentPiece.piece.figure, false);
+                    RotateFigure = rotatePiece(Game.CurrentPiece.piece.figure, false);
                 }
                 break;
             case 'rotateccw':
                 if (Game.CurrentPiece.piece.name !== 'O') {
-                    Figure = rotatePiece(Game.CurrentPiece.piece.figure, true);
+                    RotateFigure = rotatePiece(Game.CurrentPiece.piece.figure, true);
                 }
                 break;
-            default : return;
+            default :
+                return;
         }
 
-        if (collision(y, x, Figure)) {
+        if (collision(y, x, RotateFigure)) {
             Game.row = y;
             Game.col = x;
-            Game.CurrentPiece.piece.figure = Figure;
+            Game.CurrentPiece.piece.figure = RotateFigure;
             clearPiece(Game.CurrentPiece.cells);
             Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
         }
     };
 
     /*
-    ------------------------- GAME INIT ------------------------------
+     ------------------------- GAME INIT ------------------------------
      */
-    _self.init = function() {
+    _self.init = function () {
         initBucket();
 
         // demo floor pieces
@@ -357,22 +370,21 @@ TETRO = (function() {
         Game.CurrentPiece.piece = getRandomPiece(Pieces);
 
         Game.row = 0;
-        Game.col = getCenter(Stack.width-1, Game.CurrentPiece.piece.figure[0].length);
+        Game.col = getCenter(Stack.width - 1, Game.CurrentPiece.piece.figure[0].length);
 
         Game.pieceCounter++;
         Game.CurrentPiece.id = Game.pieceCounter;
         Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
-
     };
 
     /*
-    ----------------------- DRAW ------------------------------
-    */
+     ----------------------- DRAW ------------------------------
+     */
 
     /**
      * draw
      */
-    _self.draw = function() {
+    _self.draw = function () {
         clearFrame();
         drawFrame();
     };
@@ -388,16 +400,25 @@ TETRO = (function() {
      * drawFrame
      */
     function drawFrame() {
-         var table = document.createElement('table');
+        var table = document.createElement('table');
 
         for (var r = (Stack.height - 1); r >= 0; r--) {
 
             var row = document.createElement('tr');
             for (var c = 0; c < Stack.width; c++) {
                 var td = document.createElement('td');
+
                 if (Stack.grid[r][c] === 1) {
                     td.classList.add('block');
                 }
+                else if (typeof Game.CurrentPiece.cells[r] !== 'undefined'
+                    && typeof Game.CurrentPiece.cells[r][c] !== 'undefined'
+                    && Game.CurrentPiece.cells[r][c] !== 1
+                    && Stack.grid[r][c] !== 1
+                ) {
+                    td.classList.add('o');
+                }
+
                 row.appendChild(td);
             }
             table.insertBefore(row, table.firstChild);
@@ -406,6 +427,7 @@ TETRO = (function() {
             bucket.insertBefore(table, bucket.firstChild);
         }
     }
+
     /*
      ----------------------- \ DRAW ------------------------------
      */

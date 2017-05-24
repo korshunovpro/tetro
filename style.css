@@ -32,12 +32,12 @@ td.block {
     opacity: 0.5;
 }
 
-.canvas {
+.o {
     position: relative;
     background: #a2ec95;
 }
 
-.canvas:before {
+.o:before {
     width:15px;
     position: absolute;
     display: block;
