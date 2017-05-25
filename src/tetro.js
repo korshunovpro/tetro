@@ -7,30 +7,44 @@ TETRO = (function () {
 
     var _self = this;
 
+    // temp vars
+    var TIMER = {
+        time: null,
+        step: 60,
+        dt: 0
+    };
+
+
+    var spawnOffset = 0;
+
     /**
      * @type {{grid: Array, width: number, height: number}}
      */
     var Stack = {
         grid: [],
         width: 10,
-        height: 20
+        height: 20 + spawnOffset // spawn offset
     };
 
     /**
      * @type {{}}
      */
-    var Game = {
+    var State = {
+        
         row: 0,
         col: 0,
+        
         pieceCounter: 0,
-        CurrentPiece: {
+
+        ActivePiece: {
             id: 0,
             piece: {
                 name: null,
                 figure: null,
                 color: null
             },
-            cells: {}
+            cells: {},
+            onFloor : false
         }
     };
 
@@ -105,16 +119,21 @@ TETRO = (function () {
     };
 
     /**
-     * Init empty play area
+     * Init empty playfield
      * @returns {boolean}
      */
-    function initBucket() {
+    function initStack() {
         Stack.grid = [];
         for (var r = 0; r < Stack.height; r++) {
             Stack.grid.unshift({});
-            for (var c = 0; c < Stack.width; c++) {
-                Stack.grid[0][c] = 0;
-            }
+            addLineToStack();
+        }
+        return true;
+    }
+
+    function addLineToStack() {
+        for (var c = 0; c < Stack.width; c++) {
+            Stack.grid[0][c] = 0;
         }
         return true;
     }
@@ -195,9 +214,9 @@ TETRO = (function () {
      * @param ccw
      */
     function rotate(ccw) {
-        Game.CurrentPiece.piece.figure = rotatePiece(Game.CurrentPiece.piece.figure, ccw);
-        clearPiece(Game.CurrentPiece.cells);
-        Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
+        State.ActivePiece.piece.figure = rotatePiece(State.ActivePiece.piece.figure, ccw);
+        clearPiece(State.ActivePiece.cells);
+        State.ActivePiece.cells = fillPiece(State.ActivePiece.piece.figure, State.row, State.col);
     }
 
     /**
@@ -210,9 +229,9 @@ TETRO = (function () {
         for (var r = 0; r < piece.length; r++) {
             for (var c = 0; c < piece[r].length; c++) {
                 // first IF block not needed if erase piece before check
-                if ((typeof Game.CurrentPiece.cells[y + r] === 'undefined'
-                        || typeof Game.CurrentPiece.cells[y + r][x + c] === 'undefined'
-                        || Game.CurrentPiece.cells[y + r][x + c] === 0
+                if ((typeof State.ActivePiece.cells[y + r] === 'undefined'
+                        || typeof State.ActivePiece.cells[y + r][x + c] === 'undefined'
+                        || State.ActivePiece.cells[y + r][x + c] === 0
                     )
                 ) {
                     // cell is empty and not go out from bucket
@@ -313,9 +332,16 @@ TETRO = (function () {
      * @param direction
      */
     _self.move = function (direction) {
-        var x = Game.col;
-        var y = Game.row;
-        var RotateFigure = Game.CurrentPiece.piece.figure;
+
+        if (State.row < spawnOffset && direction !== _self.DOWN) return false;
+        if (State.row <= spawnOffset && direction === _self.UP) return false;
+        if (State.row < spawnOffset && direction === _self.DOWN) {
+            State.row = spawnOffset-1;
+        }
+
+        var x = State.col;
+        var y = State.row;
+        var MovedFigure = State.ActivePiece.piece.figure;
 
         switch (direction) {
             case 'left':
@@ -331,51 +357,124 @@ TETRO = (function () {
                 y++;
                 break;
             case 'rotate':
-                if (Game.CurrentPiece.piece.name !== 'O') {
-                    RotateFigure = rotatePiece(Game.CurrentPiece.piece.figure, false);
+                if (State.ActivePiece.piece.name !== 'X') {
+                    MovedFigure = rotatePiece(State.ActivePiece.piece.figure, false);
                 }
                 break;
             case 'rotateccw':
-                if (Game.CurrentPiece.piece.name !== 'O') {
-                    RotateFigure = rotatePiece(Game.CurrentPiece.piece.figure, true);
+                if (State.ActivePiece.piece.name !== 'X') {
+                    MovedFigure = rotatePiece(State.ActivePiece.piece.figure, true);
                 }
                 break;
             default :
                 return;
         }
 
-        if (collision(y, x, RotateFigure)) {
-            Game.row = y;
-            Game.col = x;
-            Game.CurrentPiece.piece.figure = RotateFigure;
-            clearPiece(Game.CurrentPiece.cells);
-            Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
+        if (collision(y, x, MovedFigure)) {
+
+            if (y > State.row) State.ActivePiece.onFloor = false;
+            
+            State.row = y;
+            State.col = x;
+
+            State.ActivePiece.piece.figure = MovedFigure;
+
+            clearPiece(State.ActivePiece.cells);
+            State.ActivePiece.cells = fillPiece(State.ActivePiece.piece.figure, State.row, State.col);
         }
+        else if (y > State.row) {
+            State.ActivePiece.onFloor = true;
+            onIsDown();
+        }
+
     };
 
     /*
      ------------------------- GAME INIT ------------------------------
      */
-    _self.init = function () {
-        initBucket();
+    _self.init = function (fps) {
+
+        initStack();
 
         // demo floor pieces
-        Game.pieceCounter++;
-        fillPiece(getRandomPiece(Pieces).figure, 18, 1);
+        State.pieceCounter++;
+        fillPiece(getRandomPiece(Pieces).figure, Stack.height - 2, 1);
 
-        Game.pieceCounter++;
-        fillPiece(getRandomPiece(Pieces).figure, 18, 6);
+        State.pieceCounter++;
+        fillPiece(getRandomPiece(Pieces).figure, Stack.height - 2, 6);
 
         // new spawn piece
-        Game.CurrentPiece.piece = getRandomPiece(Pieces);
+        createSpawnPiece();
 
-        Game.row = 0;
-        Game.col = getCenter(Stack.width - 1, Game.CurrentPiece.piece.figure[0].length);
+        /*play*/
+        TIMER.time = Date.now();
 
-        Game.pieceCounter++;
-        Game.CurrentPiece.id = Game.pieceCounter;
-        Game.CurrentPiece.cells = fillPiece(Game.CurrentPiece.piece.figure, Game.row, Game.col);
     };
+
+    /*
+     --------------------------- EVENTS ------------------------------
+     */
+    function onIsDown() {
+        if (!State.ActivePiece.onFloor) {
+            State.ActivePiece.onFloor = true;
+        }
+        removeFullLine();
+        createSpawnPiece();
+    }
+
+    function removeFullLine() {
+        var checkRowStart = State.row;
+        var checkRowEnd = State.row - 1 + State.ActivePiece.piece.figure.length;
+
+        for (var r = checkRowStart; r <= checkRowEnd && r < Stack.height; r++) {
+
+            if (typeof Stack.grid[r] === 'undefined') return;
+
+            var full = true;
+
+            for(var c in Stack.grid[r]) {
+                if (Stack.grid[r][c] == 0) {
+                    full = false;
+                }
+            }
+
+            if (full) {
+                Stack.grid.splice(r, 1);
+                Stack.grid.unshift({});
+                addLineToStack();
+            }
+        }
+    }
+
+    var GAMEOVER = false;
+    function createSpawnPiece() {
+        if (GAMEOVER) return false;
+        // new spawn piece
+        State.ActivePiece.onFloor = false;
+        State.ActivePiece.cells = {};
+
+        State.ActivePiece.piece = getRandomPiece(Pieces);
+
+        State.row = 0;
+        State.col = getCenter(Stack.width - 1, State.ActivePiece.piece.figure[0].length);
+
+        State.pieceCounter++;
+        State.ActivePiece.id = State.pieceCounter;
+
+        if (collision(State.row, State.col, State.ActivePiece.piece.figure)) {
+            State.ActivePiece.cells = fillPiece(State.ActivePiece.piece.figure, State.row, State.col);
+        }
+        else {
+            clearPiece(State.ActivePiece.cells);
+            State.ActivePiece.piece.figure.shift();
+            if (collision(State.row, State.col, State.ActivePiece.piece.figure)) {
+                fillPiece(State.ActivePiece.piece.figure, State.row, State.col);
+            }
+            GAMEOVER = true;
+            alert('Game Over');
+        }
+    }
+
 
     /*
      ----------------------- DRAW ------------------------------
@@ -384,10 +483,22 @@ TETRO = (function () {
     /**
      * draw
      */
-    _self.draw = function () {
+    _self.frame = function () {
         clearFrame();
+        stateUpdate();
         drawFrame();
     };
+
+    /**
+     * change state
+     */
+    function stateUpdate() {
+        if (TIMER.dt === 20) {
+            _self.move(_self.DOWN);
+            TIMER.dt = 0;
+        }
+        TIMER.dt++;
+    }
 
     /**
      * clearFrame
@@ -397,11 +508,10 @@ TETRO = (function () {
     }
 
     /**
-     * drawFrame
+     * Draw
      */
     function drawFrame() {
         var table = document.createElement('table');
-
         for (var r = (Stack.height - 1); r >= 0; r--) {
 
             var row = document.createElement('tr');
@@ -411,9 +521,9 @@ TETRO = (function () {
                 if (Stack.grid[r][c] === 1) {
                     td.classList.add('block');
                 }
-                else if (typeof Game.CurrentPiece.cells[r] !== 'undefined'
-                    && typeof Game.CurrentPiece.cells[r][c] !== 'undefined'
-                    && Game.CurrentPiece.cells[r][c] !== 1
+                else if (typeof State.ActivePiece.cells[r] !== 'undefined'
+                    && typeof State.ActivePiece.cells[r][c] !== 'undefined'
+                    && State.ActivePiece.cells[r][c] !== 1
                     && Stack.grid[r][c] !== 1
                 ) {
                     td.classList.add('o');

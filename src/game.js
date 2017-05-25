@@ -8,12 +8,13 @@ if (typeof window.GAME !== 'undefined') var GAME = {};
  */
 GAME = (function () {
     var now,
+        fps  = 60,
         dt   = 0,
         last = Date.now(),
-        step = 1/60;
+        step = 1/fps;
 
     // init game
-    TETRO.init();
+    TETRO.init(fps);
 
     // main loop
     function frame() {
@@ -22,7 +23,7 @@ GAME = (function () {
         while(dt > step) {
             dt = dt - step;
             // loop
-            TETRO.draw();
+            TETRO.frame();
         }
         last = now;
         requestAnimationFrame(frame);
