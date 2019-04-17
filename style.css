@@ -97,3 +97,12 @@ table > tr:before
     opacity: 0.5;
     font-size:11px;
 }
+
+td.block.red {background: red;}
+td.block.green {background: green;}
+td.block.yellow {background: yellow;}
+td.block.magenta {background: magenta;}
+td.block.cyan {background: cyan;}
+td.block.orange {background: orange;}
+td.block.blue {background: blue;}
+

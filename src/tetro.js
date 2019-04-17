@@ -14,7 +14,6 @@ TETRO = (function () {
         dt: 0
     };
 
-
     var spawnOffset = 0;
 
     /**
@@ -211,15 +210,6 @@ TETRO = (function () {
     }
 
     /**
-     * @param ccw
-     */
-    function rotate(ccw) {
-        State.ActivePiece.piece.figure = rotatePiece(State.ActivePiece.piece.figure, ccw);
-        clearPiece(State.ActivePiece.cells);
-        State.ActivePiece.cells = fillPiece(State.ActivePiece.piece.figure, State.row, State.col);
-    }
-
-    /**
      * @param y
      * @param x
      * @param piece
@@ -229,15 +219,18 @@ TETRO = (function () {
         for (var r = 0; r < piece.length; r++) {
             for (var c = 0; c < piece[r].length; c++) {
                 // first IF block not needed if erase piece before check
-                if ((typeof State.ActivePiece.cells[y + r] === 'undefined'
-                        || typeof State.ActivePiece.cells[y + r][x + c] === 'undefined'
-                        || State.ActivePiece.cells[y + r][x + c] === 0
-                    )
+                if (typeof State.ActivePiece.cells[y + r] === 'undefined'
+                    || typeof State.ActivePiece.cells[y + r][x + c] === 'undefined'
+                    || State.ActivePiece.cells[y + r][x + c] === 0
                 ) {
                     // cell is empty and not go out from bucket
                     if (piece[r][c] &&
                         (
-                            x + c < 0 || x + c >= Stack.width || y + r >= Stack.height || y + r < 0 || Stack.grid[y + r][x + c]
+                            x + c < 0
+                            || x + c >= Stack.width
+                            || y + r >= Stack.height
+                            || y + r < 0
+                            || Stack.grid[y + r][x + c]
                         )
                     ) {
                         return false;
@@ -292,38 +285,32 @@ TETRO = (function () {
     /**
      * move constants
      */
-    Object.defineProperty(_self, 'UP', {
-        value: 'up',
-        writable: false,
-        configurable: false
-    });
-
     Object.defineProperty(_self, 'DOWN', {
-        value: 'down',
+        value: 'DOWN',
         writable: false,
         configurable: false
     });
 
     Object.defineProperty(_self, 'LEFT', {
-        value: 'left',
+        value: 'LEFT',
         writable: false,
         configurable: false
     });
 
     Object.defineProperty(_self, 'RIGHT', {
-        value: 'right',
+        value: 'RIGHT',
         writable: false,
         configurable: false
     });
 
     Object.defineProperty(_self, 'ROTATE', {
-        value: 'rotate',
+        value: 'ROTATE',
         writable: false,
         configurable: false
     });
 
     Object.defineProperty(_self, 'ROTATECCW', {
-        value: 'rotateccw',
+        value: 'ROTATECCW',
         writable: false,
         configurable: false
     });
@@ -334,7 +321,6 @@ TETRO = (function () {
     _self.move = function (direction) {
 
         if (State.row < spawnOffset && direction !== _self.DOWN) return false;
-        if (State.row <= spawnOffset && direction === _self.UP) return false;
         if (State.row < spawnOffset && direction === _self.DOWN) {
             State.row = spawnOffset-1;
         }
@@ -344,24 +330,21 @@ TETRO = (function () {
         var MovedFigure = State.ActivePiece.piece.figure;
 
         switch (direction) {
-            case 'left':
+            case 'LEFT':
                 x--;
                 break;
-            case 'right':
+            case 'RIGHT':
                 x++;
                 break;
-            case 'up':
-                y--;
-                break;
-            case 'down':
+            case 'DOWN':
                 y++;
                 break;
-            case 'rotate':
+            case 'ROTATE':
                 if (State.ActivePiece.piece.name !== 'X') {
                     MovedFigure = rotatePiece(State.ActivePiece.piece.figure, false);
                 }
                 break;
-            case 'rotateccw':
+            case 'ROTATECCW':
                 if (State.ActivePiece.piece.name !== 'X') {
                     MovedFigure = rotatePiece(State.ActivePiece.piece.figure, true);
                 }
@@ -395,13 +378,6 @@ TETRO = (function () {
     _self.init = function (fps) {
 
         initStack();
-
-        // demo floor pieces
-        State.pieceCounter++;
-        fillPiece(getRandomPiece(Pieces).figure, Stack.height - 2, 1);
-
-        State.pieceCounter++;
-        fillPiece(getRandomPiece(Pieces).figure, Stack.height - 2, 6);
 
         // new spawn piece
         createSpawnPiece();
@@ -512,6 +488,7 @@ TETRO = (function () {
      */
     function drawFrame() {
         var table = document.createElement('table');
+
         for (var r = (Stack.height - 1); r >= 0; r--) {
 
             var row = document.createElement('tr');
@@ -528,7 +505,6 @@ TETRO = (function () {
                 ) {
                     td.classList.add('o');
                 }
-
                 row.appendChild(td);
             }
             table.insertBefore(row, table.firstChild);

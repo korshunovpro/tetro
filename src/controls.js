@@ -3,7 +3,7 @@
  */
 if (typeof window.CONTROL !== 'undefined') var CONTROL = {};
 
-CONTROL = (function() {
+CONTROL = (function () {
 
     document.onkeydown = controlDown;
     document.onkeyup = controlUp;
@@ -24,11 +24,6 @@ CONTROL = (function() {
         else if (e.keyCode === 88) {
             e.preventDefault();
             TETRO.move(TETRO.ROTATECCW);
-        }
-        // up
-        else if (e.keyCode === 38) {
-            e.preventDefault();
-            TETRO.move(TETRO.UP);
         }
         // down
         else if (e.keyCode === 40) {
